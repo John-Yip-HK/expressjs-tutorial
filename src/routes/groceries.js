@@ -21,9 +21,9 @@ const groceryList = [
 // Route parameter: capture value at certain position of the URL.
 router.get('', (req, res, next) => {
   // Set a cookie to the client.
-  res.cookie('visited', true, {
-    maxAge: 60000,
-  });
+  // res.cookie('visited', true, {
+  //   maxAge: 60000,
+  // });
 
   res.send(groceryList);
 });

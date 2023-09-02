@@ -4,6 +4,7 @@ const session = require('express-session');
 
 const groceriesRouter = require('./routes/groceries');
 const marketsRouter = require('./routes/markets');
+const authRouter = require('./routes/auth');
 
 const app = express();
 const PORT = 3001;
@@ -33,6 +34,18 @@ app.use(session({
 app.use((req, res, next) => {
   console.log(`${req.method}: ${req.url}`);
   next();
+});
+
+// Prevent auth routes from being 'protected' by the below middleware.
+app.use('/api/v1/auth', authRouter);
+
+// Authenticate user by checking its session.
+app.use((req, res, next) => {
+  if (req.session.user) {
+    next();
+  } else {
+    res.sendStatus(401);
+  }
 });
 
 // Register `/groceries` router into our main express app with path prefix.
