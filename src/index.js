@@ -29,20 +29,26 @@ const groceryList = [
     item: 'cereal',
     quentity: 1,
   },
+  {
+    item: 'pop-tarts',
+    quentity: 3,
+  },
 ]
 
 // Can think every single parameter after the route name as 'middleware'.
+// Route parameter: capture value at certain position of the URL.
 app.get('/groceries', (req, res, next) => {
-  console.log('Before handling request.');
-  next();
-}, (req, res, next) => {
   res.send(groceryList);
-  next();
-}, (_, res) => {
-  console.log('Finish executing GET request');
+});
 
-  // You cannot send another response.
-  // res.send(403);
+app.get('/groceries/:item', (req, res) => {
+  // Every route param is stored as key-value pair in this object.
+  // console.log(req.params.item);
+
+  const { item } = req.params;
+  const groceryItem = groceryList.find((grocery) => grocery.item === item);
+
+  res.send(groceryItem);
 });
 
 app.post('/groceries', (req, res) => {
