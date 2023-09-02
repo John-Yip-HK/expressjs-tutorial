@@ -55,4 +55,46 @@ router.post('', (req, res) => {
   res.sendStatus(201);
 });
 
+router.get('/shopping/cart', (req, res) => {
+  // Get cart of a user.
+  const { cart } = req.session;
+
+  if (!cart) {
+    res.send('You have no cart session.');
+  } else {
+    res.send(cart);
+  }
+});
+
+router.post('/shopping/cart/item', (req, res) => {
+  const { item, quantity } = req.body;
+  const cartItem = { item, quantity };
+
+  console.log(cartItem);
+
+  /*
+    Session ID is not changed if the session is not modified.
+    Session modified ==> the session ID will be relevant to the changed session and
+    every subsequent change to that session.
+  */
+  // req.sessionID;
+  const { cart } = req.session;
+
+  console.log(cart);
+
+  if (cart) {
+    req.session.cart.items.push(cartItem);
+  } else {
+    /* 
+      We modify the session here.
+      The moment you modify the session, the cookie data related to that change is sent back to the client.
+    */
+    req.session.cart = {
+      items: [cartItem],
+    };
+  }
+
+  res.sendStatus(201);
+});
+
 module.exports = router;

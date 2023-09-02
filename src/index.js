@@ -1,5 +1,6 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
 
 const groceriesRouter = require('./routes/groceries');
 const marketsRouter = require('./routes/markets');
@@ -8,10 +9,8 @@ const app = express();
 const PORT = 3001;
 
 /*
-
   Register a middleware to parse POST request body properly.
   Middleware - a function that is invoked in the middle of 2 main functionalities.
-
 */
 app.use(express.json());
 
@@ -20,6 +19,15 @@ app.use(express.urlencoded({ extended: true }));
 
 // Parse cookie content.
 app.use(cookieParser());
+
+/*
+  Use session to persist data on server side.
+*/
+app.use(session({
+  secret: 'thisIsASecret',
+  resave: false,
+  saveUninitialized: false,
+}));
 
 // Create a simple middleware and apply it to all routes.
 app.use((req, res, next) => {
