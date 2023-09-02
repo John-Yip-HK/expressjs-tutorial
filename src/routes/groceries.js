@@ -20,10 +20,21 @@ const groceryList = [
 // Can think every single parameter after the route name as 'middleware'.
 // Route parameter: capture value at certain position of the URL.
 router.get('', (req, res, next) => {
+  // Set a cookie to the client.
+  res.cookie('visited', true, {
+    maxAge: 60000,
+  });
+
   res.send(groceryList);
 });
 
 router.get('/:item', (req, res) => {
+  // Get raw cookies
+  // console.log(req.headers.cookie);
+
+  // Need cookie parser to get the cookie value from req.cookies.
+  console.log(req.cookies);
+
   // Every route param is stored as key-value pair in this object.
   // console.log(req.params.item);
 
