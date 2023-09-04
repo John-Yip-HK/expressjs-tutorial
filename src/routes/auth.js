@@ -1,41 +1,44 @@
 const { Router } = require('express');
 const User = require('../database/schemas/User');
-const { hashPassword } = require("../utils/helpers");
+const { hashPassword, comparePassword } = require("../utils/helpers");
 
 const router = Router();
 
-router.post('/login', (req, res) => {
-  const { username, password } = req.body;
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    res.sendStatus(400);
+  }
 
-  if (username && password) {
-    if (req.session.user) {
-      res.send(req.session.user);
-    } else {
-      req.session.user = {
-        username
-      };
+  const userDB = await User.findOne({ email });
+  if (!userDB) {
+    return res.sendStatus(401);
+  }
 
-      res.send(req.session);
-    }
+  const isValid = comparePassword(password, userDB.password);
+  if (isValid) {
+    req.session.user = userDB;
+    
+    return res.sendStatus(200);
   } else {
-    res.sendStatus(401);
+    return res.sendStatus(401);
   }
 });
 
 router.post('/register', async (req, res) => {
-  const { username, email } = req.body;
+  const { email } = req.body;
 
-  // Create a new user if the user has not been found in the user model based on the `username` or `email`.
+  // Create a new user if the user has not been found in the user model based on the `email`.
   const userDB = await User.findOne({
-    $or: [{username}, {email}]
-  }).exec();
+    email
+  });
 
   if (userDB) {
     res.status(400).send({ msg: 'User already exists.' });
   } else {
     const password = hashPassword(req.body.password);
     await User.create({
-      username, password, email
+      password, email
     });
     res.sendStatus(201);
   }
