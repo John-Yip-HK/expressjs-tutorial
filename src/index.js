@@ -51,9 +51,15 @@ app.use(passport.session());
 // Prevent auth routes from being 'protected' by the below middleware.
 app.use('/api/v1/auth', authRouter);
 
-// Authenticate user by checking its session.
+/*
+  Authenticate user by checking its session.
+  The `req.user` value is defined by callback argument of `passport.deserializeUser()` middleware in `strategies/local.js`.
+  The session does not persist after server is stopped and restarted.
+*/
 app.use((req, res, next) => {
-  if (req.session.user) {
+  if (req.user) {
+    console.log(req.user);
+    
     next();
   } else {
     res.sendStatus(401);

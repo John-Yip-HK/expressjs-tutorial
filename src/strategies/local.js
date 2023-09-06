@@ -4,6 +4,31 @@ const { Strategy: LocalStrategy } = require('passport-local');
 const User = require('../database/schemas/User');
 const { comparePassword } = require("../utils/helpers");
 
+passport.serializeUser((user, done) => {
+  console.log('Serializing user...');
+  done(null, user.id);
+});
+
+/*
+  The first argument of the callback will be the thing passed into `done` function of `serializeUser()`.
+  Will be called for every request requiring authentication.
+*/
+passport.deserializeUser(async (id, done) => {
+  console.log('Deserializing user...');
+  console.log(id);
+
+  try {
+    const user = await User.findById(id);
+
+    if (!user) throw new Error('User not found');
+    
+    done(null, user);
+  } catch (err) {
+    console.log(err);
+    done(err, null);
+  }
+})
+
 passport.use(
   new LocalStrategy({
     // Set name of user field in request body. Default is `username`.
