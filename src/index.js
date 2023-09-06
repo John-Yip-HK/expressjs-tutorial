@@ -8,7 +8,8 @@ const MongoStore = require('connect-mongo');
 // Passport-related imports
 const passport = require('passport');
 
-require('./strategies/local');
+// require('./strategies/local');
+require('./strategies/discord');
 
 const groceriesRouter = require('./routes/groceries');
 const marketsRouter = require('./routes/markets');

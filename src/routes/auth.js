@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const User = require('../database/schemas/User');
-const { hashPassword, comparePassword } = require("../utils/helpers");
+const { hashPassword } = require("../utils/helpers");
 const passport = require('passport');
 
 const router = Router();
@@ -51,5 +51,14 @@ router.post('/register', async (req, res) => {
     res.sendStatus(201);
   }
 });
+
+router.get('/discord', passport.authenticate('discord'), (req, res) => {
+  // Trigger discord strategy and redirect the user to Discord platform for log in.
+  res.sendStatus(200);
+})
+
+router.get('/discord/redirect', passport.authenticate('discord'), (req, res) => {
+  res.sendStatus(200);
+})
 
 module.exports = router;

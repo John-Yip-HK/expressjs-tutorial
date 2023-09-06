@@ -28,7 +28,7 @@ passport.deserializeUser(async (id, done) => {
     console.log(err);
     done(err, null);
   }
-})
+});
 
 passport.use(
   new LocalStrategy({
