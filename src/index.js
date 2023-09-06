@@ -3,8 +3,11 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 
+const MongoStore = require('connect-mongo');
+
 // Passport-related imports
 const passport = require('passport');
+
 require('./strategies/local');
 
 const groceriesRouter = require('./routes/groceries');
@@ -15,7 +18,6 @@ require("./database")
 
 const app = express();
 const PORT = 3001;
-const memoryStore = new session.MemoryStore();
 
 /*
   Register a middleware to parse POST request body properly.
@@ -36,17 +38,16 @@ app.use(session({
   secret: 'thisIsASecret',
   resave: false,
   saveUninitialized: false,
-  store: memoryStore,
+
+  // Our sessions are not stored in our MongoDB database. Session is persisted after restart.
+  store: MongoStore.create({
+    mongoUrl: 'mongodb://localhost:27017/expressjs_tutorial'
+  }),
 }));
 
 // Create a simple middleware and apply it to all routes.
 app.use((req, res, next) => {
   console.log(`${req.method}: ${req.url}`);
-  next();
-});
-
-app.use((req, res, next) => {
-  console.log(memoryStore);
   next();
 });
 
