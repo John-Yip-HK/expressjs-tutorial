@@ -15,6 +15,7 @@ require("./database")
 
 const app = express();
 const PORT = 3001;
+const memoryStore = new session.MemoryStore();
 
 /*
   Register a middleware to parse POST request body properly.
@@ -35,11 +36,17 @@ app.use(session({
   secret: 'thisIsASecret',
   resave: false,
   saveUninitialized: false,
+  store: memoryStore,
 }));
 
 // Create a simple middleware and apply it to all routes.
 app.use((req, res, next) => {
   console.log(`${req.method}: ${req.url}`);
+  next();
+});
+
+app.use((req, res, next) => {
+  console.log(memoryStore);
   next();
 });
 
