@@ -1,7 +1,7 @@
 const { Router } = require('express');
-const User = require('../database/schemas/User');
-const { hashPassword } = require("../utils/helpers");
 const passport = require('passport');
+
+const { authRegisterController } = require('../controllers/auth');
 
 const router = Router();
 
@@ -33,24 +33,7 @@ router.post('/login', passport.authenticate('local'),
   res.sendStatus(200);
 });
 
-router.post('/register', async (req, res) => {
-  const { email } = req.body;
-
-  // Create a new user if the user has not been found in the user model based on the `email`.
-  const userDB = await User.findOne({
-    email
-  });
-
-  if (userDB) {
-    res.status(400).send({ msg: 'User already exists.' });
-  } else {
-    const password = hashPassword(req.body.password);
-    await User.create({
-      password, email
-    });
-    res.sendStatus(201);
-  }
-});
+router.post('/register', authRegisterController);
 
 router.get('/discord', passport.authenticate('discord'), (req, res) => {
   // Trigger discord strategy and redirect the user to Discord platform for log in.
