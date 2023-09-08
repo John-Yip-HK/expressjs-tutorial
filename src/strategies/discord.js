@@ -35,6 +35,32 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
+/*
+  `accessToken`: make requests on behalf of the authenticated user. Sensitive info.
+  `refreshToken`: refresh access token by calling an endpoint and then retrieving a new set of tokens.
+*/
+async function discordVerifyFunction(accessToken, refreshToken, profile, done) {
+    const { id: discordId } = profile;
+    
+    try {
+      const discordUser = await DiscordUser.findOne({ discordId, });
+  
+      if (discordUser) {
+        return done(null, discordUser);
+      } else {
+        // If the user does not exist, add it into our DB.
+        const newUser = await DiscordUser.create({
+          discordId,
+        });
+
+        return done(null, newUser);
+      }
+    } catch (err) {
+      console.log(err);
+      done(err, null);
+    }
+  }
+
 passport.use(
   new DiscordStrategy({
     clientID: '1148962966117568512',
@@ -48,34 +74,7 @@ passport.use(
     // Get user details. Can be found on "URL Generator" page of discord portal.
     scope: ['identify']
   },
-  /*
-    `accessToken`: make requests on behalf of the authenticated user. Sensitive info.
-    `refreshToken`: refresh access token by calling an endpoint and then retrieving a new set of tokens.
-  */
-  async (accessToken, refreshToken, profile, done) => {
-    console.log(accessToken, refreshToken);
-    console.log(profile);
-
-    try {
-      const discordUser = await DiscordUser.findOne({ discordId: profile.id });
-  
-      if (discordUser) {
-        console.log(`Found user: ${discordUser}`);
-
-        return done(null, discordUser);
-      } else {
-        // If the user does not exist, add it into our DB.
-        const newUser = await DiscordUser.create({
-          discordId: profile.id
-        });
-
-        console.log(`Created user: ${newUser}`);
-  
-        return done(null, newUser);
-      }
-    } catch (err) {
-      console.log(err);
-      done(err, null);
-    }
-  }
+  discordVerifyFunction
 ));
+
+module.exports = { discordVerifyFunction };
