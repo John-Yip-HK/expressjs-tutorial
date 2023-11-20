@@ -5,15 +5,15 @@ const router = Router();
 const groceryList = [
   {
     item: 'milk',
-    quentity: 2,
+    quantity: 2,
   },
   {
     item: 'cereal',
-    quentity: 1,
+    quantity: 1,
   },
   {
     item: 'pop-tarts',
-    quentity: 3,
+    quantity: 3,
   },
 ]
 
