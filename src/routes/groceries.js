@@ -1,4 +1,5 @@
 const { Router } = require('express');
+const { dbQuery } = require('../db');
 
 const router = Router();
 
@@ -19,12 +20,12 @@ const groceryList = [
 
 // Can think every single parameter after the route name as 'middleware'.
 // Route parameter: capture value at certain position of the URL.
-router.get('', (req, res, next) => {
+router.get('', async (_, res) => {
   // Set a cookie to the client.
   // res.cookie('visited', true, {
   //   maxAge: 60000,
   // });
-
+  const groceryList = await dbQuery('SELECT "item", "quantity" FROM "groceries";');
   res.send(groceryList);
 });
 
@@ -33,7 +34,7 @@ router.get('/:item', (req, res) => {
   // console.log(req.headers.cookie);
 
   // Need cookie parser to get the cookie value from req.cookies.
-  console.log(req.cookies);
+  // console.log(req.cookies);
 
   // Every route param is stored as key-value pair in this object.
   // console.log(req.params.item);
@@ -44,15 +45,38 @@ router.get('/:item', (req, res) => {
   res.send(groceryItem);
 });
 
-router.post('', (req, res) => {
-  console.log(req.body);
+router.post('', async (req, res) => {
+  const { item, quantity } = req.body;
 
-  groceryList.push(req.body);
+  if (!item || !quantity) {
+    const missingFields = [];
 
-  // Deprecated
-  // res.send(201);
+    if (!item) { missingFields.push('item') }
+    if (!quantity) { missingFields.push('quantity') }
+    
+    res.status(400).send({
+      error: 'Missing fields',
+      missingFields,
+    });
+  }
 
-  res.sendStatus(201);
+  try {
+    await dbQuery(
+      `
+        INSERT INTO groceries (item, quantity) 
+        VALUES ($1::varchar(128), $2::integer);
+      `, 
+      [item, quantity]
+    );
+    
+    res.sendStatus(201);
+  } catch (err) {
+    res.status(500).send({
+      error: 'Cannot add grocery',
+      grocery: { item, quantity },
+      originalError: err,
+    })
+  }
 });
 
 router.get('/shopping/cart', (req, res) => {

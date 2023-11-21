@@ -9,6 +9,8 @@ const authRouter = require('./routes/auth');
 const app = express();
 const PORT = 3001;
 
+require('./db');
+
 /*
   Register a middleware to parse POST request body properly.
   Middleware - a function that is invoked in the middle of 2 main functionalities.
