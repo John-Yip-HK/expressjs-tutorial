@@ -1,24 +1,55 @@
 const { Router } = require('express');
 const { dbQuery } = require('../db');
-const { hashPassword } = require('../utils');
+const { hashPassword, comparePassword } = require('../utils');
 
 const router = Router();
 
-router.post('/login', (req, res) => {
-  const { username, password } = req.body;
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
 
-  if (username && password) {
-    if (req.session.user) {
-      res.send(req.session.user);
-    } else {
-      req.session.user = {
-        username
-      };
+  if (!email || !password) {
+    const missingFields = [];
 
-      res.send(req.session);
+    if (!email) { missingFields.push('email') }
+    if (!password) { missingFields.push('password') }
+    
+    return res.status(400).send({
+      error: 'Missing fields',
+      missingFields,
+    });
+  }
+
+  try {
+    const userExistsQuery = `
+      SELECT * FROM users 
+      WHERE email = $1
+      LIMIT 1;
+    `;
+    const userExistsResult = await dbQuery(userExistsQuery, [email]);
+
+    if (userExistsResult.length === 0) {
+      res.status(401).send({
+        error: 'User not found',
+      });
     }
-  } else {
-    res.sendStatus(401);
+
+    const user = userExistsResult[0];
+    const isValid = await comparePassword(password, user.hashed_password);
+    
+    if (isValid) {
+      req.session.user = user;
+      return res.sendStatus(201);
+    } else {
+      return res.status(401).send({
+        error: 'Password is incorrect.'
+      });
+    }
+  } catch (error) {
+    return res.status(500).send({
+      error: 'Cannot log in.',
+      user: { email, password },
+      originalError: error,
+    });
   }
 });
 
@@ -56,7 +87,7 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await hashPassword(password);
     // Insert new user into the database
     const insertUserQuery = `
-      INSERT INTO users (email, username, password) 
+      INSERT INTO users (email, username, hashed_password) 
       VALUES ($1, $2, $3)
     `;
     await dbQuery(insertUserQuery, [email, username, hashedPassword]);
