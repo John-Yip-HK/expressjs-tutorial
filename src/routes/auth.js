@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const { dbQuery } = require('../db');
+const { hashPassword } = require('../utils');
 
 const router = Router();
 
@@ -24,7 +25,7 @@ router.post('/login', (req, res) => {
 router.post('/register', async (req, res) => {
   const { email, username, password } = req.body;
 
-  if (!email || !username) {
+  if (!email || !username || !password) {
     const missingFields = [];
 
     if (!email) { missingFields.push('email') }
@@ -52,12 +53,13 @@ router.post('/register', async (req, res) => {
       });
     }
 
+    const hashedPassword = await hashPassword(password);
     // Insert new user into the database
     const insertUserQuery = `
       INSERT INTO users (email, username, password) 
       VALUES ($1, $2, $3)
     `;
-    await dbQuery(insertUserQuery, [email, username, password]);
+    await dbQuery(insertUserQuery, [email, username, hashedPassword]);
 
     return res.sendStatus(201);
   } catch (error) {
