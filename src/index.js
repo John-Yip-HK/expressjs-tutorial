@@ -1,6 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const passport = require('passport');
 
 const groceriesRouter = require('./routes/groceries');
 const marketsRouter = require('./routes/markets');
@@ -37,6 +38,11 @@ app.use((req, res, next) => {
   console.log(`${req.method}: ${req.url}`);
   next();
 });
+
+app.use(passport.initialize());
+
+// Using passport authentication usually also uses passport session.
+app.use(passport.session());
 
 // Prevent auth routes from being 'protected' by the below middleware.
 app.use('/api/v1/auth', authRouter);
