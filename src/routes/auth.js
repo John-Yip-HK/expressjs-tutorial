@@ -8,12 +8,8 @@ const router = Router();
 
 router.post('/login', 
   passport.authenticate('local'), 
-  (req, res) => {
-    if (req.user) {
-      return res.sendStatus(201);
-    } else {
-      return res.sendStatus(401);
-    }
+  (_, res) => {
+    return res.sendStatus(201);
   }
 );
 

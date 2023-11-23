@@ -51,7 +51,8 @@ app.use('/api/v1/auth', authRouter);
 
 // Authenticate user by checking its session.
 app.use((req, res, next) => {
-  if (req.session.user) {
+  if (req.user) {
+    console.log('user:', req.user);
     next();
   } else {
     res.sendStatus(401);
