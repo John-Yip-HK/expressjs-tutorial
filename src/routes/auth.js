@@ -1,57 +1,21 @@
 const { Router } = require('express');
+const passport = require('passport');
+
 const { dbQuery } = require('../db');
-const { hashPassword, comparePassword } = require('../utils');
+const { hashPassword } = require('../utils');
 
 const router = Router();
 
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    const missingFields = [];
-
-    if (!email) { missingFields.push('email') }
-    if (!password) { missingFields.push('password') }
-    
-    return res.status(400).send({
-      error: 'Missing fields',
-      missingFields,
-    });
-  }
-
-  try {
-    const userExistsQuery = `
-      SELECT * FROM users 
-      WHERE email = $1
-      LIMIT 1;
-    `;
-    const userExistsResult = await dbQuery(userExistsQuery, [email]);
-
-    if (userExistsResult.length === 0) {
-      res.status(401).send({
-        error: 'User not found',
-      });
-    }
-
-    const user = userExistsResult[0];
-    const isValid = await comparePassword(password, user.hashed_password);
-    
-    if (isValid) {
-      req.session.user = user;
+router.post('/login', 
+  passport.authenticate('local'), 
+  (req, res) => {
+    if (req.user) {
       return res.sendStatus(201);
     } else {
-      return res.status(401).send({
-        error: 'Password is incorrect.'
-      });
+      return res.sendStatus(401);
     }
-  } catch (error) {
-    return res.status(500).send({
-      error: 'Cannot log in.',
-      user: { email, password },
-      originalError: error,
-    });
   }
-});
+);
 
 router.post('/register', async (req, res) => {
   const { email, username, password } = req.body;
