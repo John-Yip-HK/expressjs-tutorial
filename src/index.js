@@ -2,6 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const passport = require('passport');
+const PostgresStore = require('connect-pg-simple');
 
 require('./strategies/local');
 
@@ -33,6 +34,7 @@ app.use(session({
   secret: 'thisIsASecret',
   resave: false,
   saveUninitialized: false,
+  store: new (PostgresStore(session))({ conString: 'postgres://johnyip@127.0.0.1:5432/express-postgres' }),
 }));
 
 // Create a simple middleware and apply it to all routes.
