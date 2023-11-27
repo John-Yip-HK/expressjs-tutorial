@@ -1,10 +1,13 @@
+require('dotenv').config();
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const passport = require('passport');
 const PostgresStore = require('connect-pg-simple');
 
+require('./strategies/serialization');
 require('./strategies/local');
+require('./strategies/google');
 
 const groceriesRouter = require('./routes/groceries');
 const marketsRouter = require('./routes/markets');

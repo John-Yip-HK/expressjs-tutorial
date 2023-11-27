@@ -63,4 +63,17 @@ router.post('/register', async (req, res) => {
   }
 });
 
+router.get('/login/google', passport.authenticate('google'));
+
+router.get('/google/redirect', 
+  passport.authenticate('google'), 
+  (req, res) => {
+    if (req.user) {
+      return res.sendStatus(201);
+    } else {
+      return res.sendStatus(401);
+    }
+  }  
+);
+
 module.exports = router;

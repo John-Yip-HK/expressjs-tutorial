@@ -104,7 +104,7 @@ router.post('/shopping/cart/item', (req, res) => {
   // req.sessionID;
   const { cart } = req.session;
 
-  console.log(cart);
+  console.log(req.sessionID, cart);
 
   if (cart) {
     req.session.cart.items.push(cartItem);

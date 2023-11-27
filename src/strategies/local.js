@@ -4,37 +4,6 @@ const { Strategy: LocalStrategy } = require('passport-local');
 const { dbQuery } = require('../db');
 const { comparePassword } = require('../utils');
 
-passport.serializeUser((user, done) => {
-  console.log('Serializing user...');
-  done(null, user.id);
-});
-
-passport.deserializeUser(async (userId, done) => {
-  console.log('Try to deserialize user...');
-  console.log(userId);
-
-  try {
-    const userInDb = await dbQuery(`
-      SELECT * FROM users 
-      WHERE id = $1::integer
-      LIMIT 1;
-    `, [userId]);
-
-    if (userInDb.length === 0) {
-      throw new Error(JSON.stringify({
-        error: 'No such user.'
-      }));
-    }
-
-    const { email, username } = userInDb[0];
-
-    done(null, { email, username });
-  } catch (err) {
-    console.log(err);
-    done(JSON.parse(err.message));
-  }
-})
-
 passport.use(new LocalStrategy({
   usernameField: 'email',
 }, async (email, password, done) => {
