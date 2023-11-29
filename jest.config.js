@@ -6,6 +6,7 @@ const config = {
     '**/__tests__/**/*.[jt]s?(x)',
     '**/?(*.)+(spec|test).[tj]s?(x)',
   ],
+  setupFiles: ['./jest.setup.js'],
 };
 
 module.exports = config;
