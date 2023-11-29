@@ -10,7 +10,7 @@ passport.serializeUser((user, done) => {
     return done(null, `${provider}-${id}`);
   }
   
-  returndone(null, user.id);
+  return done(null, user.id);
 });
 
 passport.deserializeUser(async (userId, done) => {
