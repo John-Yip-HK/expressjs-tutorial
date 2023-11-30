@@ -17,7 +17,7 @@ passport.deserializeUser(async (userId, done) => {
   console.log('Try to deserialize user...');
   console.log('Deserialized user:', userId);
 
-  const isGoogleUser = userId.includes('-');
+  const isGoogleUser = typeof userId === 'string' && userId.includes('-');
 
   try {
     const userIdForQuery = isGoogleUser ? userId.split('-')[1] : userId;

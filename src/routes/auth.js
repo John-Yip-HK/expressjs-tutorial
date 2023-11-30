@@ -27,4 +27,14 @@ router.get('/google/redirect',
   }  
 );
 
+router.post('/logout', (req, res, next) => {
+  req.session.destroy((err) => {
+    if (err) return next(err);
+    else return res
+      .status(201)
+      .clearCookie('connect.sid', { httpOnly: true, })
+      .send('Logout successful.');
+  });
+});
+
 module.exports = router;
